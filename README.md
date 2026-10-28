@@ -50,22 +50,25 @@ vientham/
 
 ### 1. Yêu cầu hệ thống
 * Python 3.12+ (đã kiểm thử mượt mà trên Python 3.14).
-* PostgreSQL 14+ (đang chạy cổng 5432 trên máy).
+* Node.js 18+ (LTS v20+ khuyến nghị).
+* PostgreSQL 18 (Cơ sở dữ liệu `remote_sensing` trên cổng 5432).
 
 ### 2. Khởi tạo môi trường & cài đặt thư viện
 ```powershell
 # Di chuyển vào thư mục dự án
 cd d:\project\project-local\vientham
 
-# Kích hoạt môi trường ảo Python
+# Kích hoạt môi trường ảo Python & cài đặt backend dependencies
 .\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 
-# Cài đặt thư viện phụ thuộc
-pip install django requests psycopg[binary]
+# Cài đặt root dependencies (concurrently) & frontend dependencies
+npm install
+npm --prefix frontend install
 ```
 
 ### 3. Cấu hình Cơ sở dữ liệu & Chạy Migrations
-Hệ thống kết nối trực tiếp cơ sở dữ liệu `fieldshift_db` trên PostgreSQL:
+Hệ thống kết nối trực tiếp cơ sở dữ liệu `remote_sensing` trên PostgreSQL:
 ```powershell
 # Chạy migration
 python manage.py migrate
@@ -74,12 +77,15 @@ python manage.py migrate
 python manage.py seed_data
 ```
 
-### 4. Khởi chạy máy chủ phát triển
+### 4. Khởi chạy toàn bộ hệ thống bằng 1 lệnh duy nhất
 ```powershell
-python manage.py runserver 127.0.0.1:8000
+npm run dev
 ```
+*(Lệnh này tự động kích hoạt song song cả Django Backend API `127.0.0.1:8000` và Next.js Frontend `localhost:3000`)*.
+
 Truy cập trình duyệt tại:
-* 🌐 **Dashboard Nông dân:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+* 🌾 **Next.js Agritech Dashboard:** [http://localhost:3000/](http://localhost:3000/)
+* 📡 **Django REST API:** [http://127.0.0.1:8000/api/analyze/](http://127.0.0.1:8000/api/analyze/)
 * ⚙️ **Trang Quản trị Admin:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)  
   *(Tài khoản: `admin` / Mật khẩu: `170106`)*
 
