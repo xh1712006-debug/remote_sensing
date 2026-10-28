@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Banner -->
+<div class="hero-banner">
+    <div class="hero-content">
+        <h1>🌾 FieldShift: Hệ Thống Luân Canh Thích Ứng Khí Hậu</h1>
+        <p>
+            Khai thác dữ liệu viễn thám Trái Đất của NASA (NASA POWER & MERRA-2) kết hợp với đặc tính thổ nhưỡng địa phương 
+            để giải quyết bài toán suy thoái đất, khô hạn do gió Lào và bão lũ cực đoan.
+        </p>
+    </div>
+</div>
+
+<!-- Main Grid -->
+<div class="dashboard-grid">
+    <!-- Left Column: Controls & Map -->
+    <div class="controls-column">
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fa-solid fa-location-crosshairs"></i> Vị Trí Nông Trại</span>
+            </div>
+
+            <!-- Presets -->
+            <label class="form-label">Chọn nhanh vùng thí điểm:</label>
+            <div class="preset-list">
+                <button type="button" class="preset-btn active" onclick="selectPreset(18.9950, 105.4740, 'Nghệ An (Yên Thành - Diễn Châu)')">
+                    <span>🌾 Nghệ An (Yên Thành - Diễn Châu)</span>
+                    <span class="preset-badge">Gió Lào & Bão</span>
+                </button>
+                <button type="button" class="preset-btn" onclick="selectPreset(10.2433, 106.3753, 'Bến Tre (Đồng bằng Sông Cửu Long)')">
+                    <span>🥥 Bến Tre (ĐBSCL)</span>
+                    <span class="preset-badge">Hạn mặn</span>
+                </button>
+                <button type="button" class="preset-btn" onclick="selectPreset(12.6700, 108.0400, 'Tây Nguyên (Đắk Lắk)')">
+                    <span>☕ Tây Nguyên (Đắk Lắk)</span>
+                    <span class="preset-badge">Khô hạn Bazan</span>
+                </button>
+            </div>
+
+            <!-- Leaflet Interactive Map -->
+            <label class="form-label">Hoặc nhấp chuột lên bản đồ:</label>
+            <div id="map"></div>
+
+            <!-- Lat Lng Inputs -->
+            <div class="form-group">
+                <div class="coords-row">
+                    <div>
+                        <label class="form-label">Vĩ độ (Lat)</label>
+                        <input type="number" id="input-lat" step="0.0001" value="{{ default_lat }}" class="input-styled">
+                    </div>
+                    <div>
+                        <label class="form-label">Kinh độ (Lng)</label>
+                        <input type="number" id="input-lon" step="0.0001" value="{{ default_lon }}" class="input-styled">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Farmer Strategy Goal -->
+            <div class="form-group">
+                <label class="form-label">Mục tiêu ưu tiên của nông dân:</label>
+                <select id="select-goal" class="select-styled">
+                    <option value="soil_health">🌱 Cải tạo đất & Bổ sung Đạm sinh học (Tối ưu)</option>
+                    <option value="water_saving">💧 Tiết kiệm nước & Chống chịu hạn hán</option>
+                    <option value="economic_balance">💰 Cân bằng kinh tế & Phòng ngừa thiên tai</option>
+                </select>
+            </div>
+
+            <!-- Farm Area Input -->
+            <div class="form-group">
+                <label class="form-label">Diện tích đất canh tác của bạn:</label>
+                <div class="coords-row">
+                    <div>
+                        <input type="number" id="input-area" step="0.1" min="0.1" value="1.0" class="input-styled" oninput="updateEconomicEstimates()">
+                    </div>
+                    <div>
+                        <select id="select-area-unit" class="select-styled" onchange="updateEconomicEstimates()">
+                            <option value="ha" selected>Hecta (ha)</option>
+                            <option value="sao_trung_bo">Sào Trung Bộ (500m²)</option>
+                            <option value="sao_bac_bo">Sào Bắc Bộ (360m²)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="btn-analyze" class="btn-primary" onclick="runAnalysis()">
+                <i class="fa-solid fa-satellite"></i> Phân Tích Dữ Liệu Vệ Tinh NASA
+            </button>
+
+            <button type="button" id="btn-print-report" class="btn-secondary" onclick="printReport()" style="margin-top: 0.6rem;">
+                <i class="fa-solid fa-print"></i> In / Xuất Báo Cáo Vụ Mùa (PDF)
+            </button>
+
+            <div id="loading" class="loading-indicator">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải dữ liệu NASA POWER & tính toán...
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Analytics & Rotation Plan -->
+    <div class="results-column">
+        <!-- Farm Economic Benefit Banner -->
+        <div class="farm-calc-box">
+            <div class="farm-calc-title">
+                <i class="fa-solid fa-coins"></i>
+                <span>Dự Toán Lợi Ích Cho Ruộng Của Bạn (<span id="calc-display-area">1.0 ha</span>):</span>
+            </div>
+            <div class="farm-calc-metrics">
+                <div class="calc-stat">
+                    <span class="calc-stat-label">Tiết kiệm phân đạm hóa học</span>
+                    <span class="calc-stat-val" id="calc-money">4.300.000 đ</span>
+                </div>
+                <div class="calc-stat">
+                    <span class="calc-stat-label">Nước tưới tiết kiệm được</span>
+                    <span class="calc-stat-val" id="calc-water">7.300 m³</span>
+                </div>
+                <div class="calc-stat">
+                    <span class="calc-stat-label">Đạm sinh học tự sinh</span>
+                    <span class="calc-stat-val" id="calc-nitrogen">+52 kg N</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Metrics Row -->
+        <div class="metrics-row">
+            <div class="metric-card alert-card">
+                <div class="metric-label">Nhiệt độ đỉnh NASA (Tmax)</div>
+                <div class="metric-value"><span id="val-tmax">--</span><span class="metric-unit">°C</span></div>
+                <div class="metric-sub" id="sub-tmax">Báo động nắng nóng gió Lào</div>
+            </div>
+            <div class="metric-card info-card">
+                <div class="metric-label">Lượng mưa cực đại (Mùa lũ)</div>
+                <div class="metric-value"><span id="val-rain">--</span><span class="metric-unit">mm/ngày</span></div>
+                <div class="metric-sub" id="sub-rain">Nguy cơ ngập úng mùa bão</div>
+            </div>
+            <div class="metric-card warning-card">
+                <div class="metric-label">Độ ẩm đất thấp nhất (Khô nẻ)</div>
+                <div class="metric-value"><span id="val-moist">--</span><span class="metric-unit">(0-1)</span></div>
+                <div class="metric-sub" id="sub-moist">Cạn kiệt nước tầng rễ</div>
+            </div>
+            <div class="metric-card success-card">
+                <div class="metric-label">Đạm sinh học tự sinh</div>
+                <div class="metric-value"><span id="val-nitrogen">+52</span><span class="metric-unit">kg/ha</span></div>
+                <div class="metric-sub">Nhờ vi khuẩn nốt sần rễ lạc</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <div class="chart-box">
+                <div class="chart-title">
+                    <i class="fa-solid fa-cloud-sun-rain"></i> Nhiệt Độ (°C) & Lượng Mưa (mm/ngày) 12 Tháng
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-box">
+                <div class="chart-title">
+                    <i class="fa-solid fa-droplet"></i> Độ Ẩm Đất Tầng Mặt (GWETTOP) & Tầng Rễ (GWETROOT)
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="soilChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crop Rotation Strategy Timeline -->
+        <div class="timeline-card">
+            <div class="timeline-header">
+                <h3>🗓️ Chiến Lược Luân Canh Thích Ứng (Lộ trình 3 Vụ / Năm)</h3>
+                <p id="recommendation-text">Đang tổng hợp khuyến nghị từ vệ tinh NASA...</p>
+            </div>
+            
+            <div class="timeline-grid" id="timeline-container">
+                <!-- Javascript will inject 3 season cards dynamically -->
+            </div>
+
+            <!-- Comparison Box: Monoculture vs Rotation -->
+            <div class="comparison-container">
+                <div class="comp-box mono">
+                    <div class="comp-title">
+                        <i class="fa-solid fa-triangle-exclamation" style="color: #f43f5e;"></i>
+                        <span>Nếu Tiếp Tục Độc Canh (Lúa 3 Vụ/Năm)</span>
+                    </div>
+                    <div class="comp-score">42 <span style="font-size: 1rem; color: #94a3b8;">/ 100 điểm đất</span></div>
+                    <div class="comp-item">
+                        <span class="comp-item-label">Tình trạng đất:</span>
+                        <span class="comp-item-val" style="color: #f43f5e;">Chai cứng, bạc màu, cạn kiệt đạm</span>
+                    </div>
+                    <div class="comp-item">
+                        <span class="comp-item-label">Tiêu thụ nước tưới:</span>
+                        <span class="comp-item-val">~14.500 m³/ha</span>
+                    </div>
+                    <div class="comp-item">
+                        <span class="comp-item-label">Rủi ro mất mùa (Gió Lào & Bão):</span>
+                        <span class="comp-item-val" style="color: #f43f5e;">85% (Rất cao)</span>
+                    </div>
+                </div>
+
+                <div class="comp-box rotation">
+                    <div class="comp-title">
+                        <i class="fa-solid fa-seedling" style="color: #10b981;"></i>
+                        <span>Áp Dụng Luân Canh Dữ Liệu NASA (Lúa ➔ Lạc ➔ Khoai)</span>
+                    </div>
+                    <div class="comp-score">89 <span style="font-size: 1rem; color: #a7f3d0;">/ 100 điểm đất</span></div>
+                    <div class="comp-item">
+                        <span class="comp-item-label">Tình trạng đất:</span>
+                        <span class="comp-item-val" style="color: #34d399;">Phục hồi đạm sinh học, đất tơi xốp</span>
+                    </div>
+                    <div class="comp-item">
+                        <span class="comp-item-label">Tiêu thụ nước tưới:</span>
+                        <span class="comp-item-val" style="color: #34d399;">~7.200 m³/ha (Tiết kiệm 50.3%)</span>
+                    </div>
+                    <div class="comp-item">
+                        <span class="comp-item-label">Rủi ro thiên tai:</span>
+                        <span class="comp-item-val" style="color: #34d399;">18% (Né hạn và né bão)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/main.js"></script>
+{% endblock %}
+

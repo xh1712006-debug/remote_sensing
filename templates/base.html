@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FieldShift | Thích Ứng Nông Trại Với Dữ Liệu NASA{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Leaflet.js Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                </div>
+                <div>
+                    <span class="brand-title">FieldShift</span>
+                    <span class="brand-subtitle">NASA Space Apps • Earth Data DSS</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <span class="nasa-badge">
+                    <span class="pulse-dot"></span> NASA POWER API: Connected
+                </span>
+                <a href="/admin/" target="_blank" class="nav-btn admin-btn">
+                    <i class="fa-solid fa-sliders"></i> Quản lý Cây trồng (Admin)
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>© 2026 <strong>FieldShift</strong> — Đề tài <em>"Field Shift: Adapting Farms with NASA Data"</em> | NASA Space Apps Challenge.</p>
+            <p class="footer-sources">Nguồn dữ liệu: NASA POWER Agroclimatology • MERRA-2 • Landsat/MODIS • SoilGrids</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet.js & Chart.js -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
