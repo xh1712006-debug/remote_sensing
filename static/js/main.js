@@ -131,8 +131,10 @@ function runAnalysis() {
     const goalSelect = document.getElementById("select-goal");
     const loading = document.getElementById("loading");
 
-    const lat = parseFloat(latInput ? latInput.value : 18.9950);
-    const lon = parseFloat(lonInput ? lonInput.value : 105.4740);
+    const rawLat = parseFloat(latInput ? latInput.value : 18.9950);
+    const rawLon = parseFloat(lonInput ? lonInput.value : 105.4740);
+    const lat = isNaN(rawLat) ? 18.9950 : rawLat;
+    const lon = isNaN(rawLon) ? 105.4740 : rawLon;
     const goal = goalSelect ? goalSelect.value : 'soil_health';
 
     if (loading) loading.style.display = "flex";
