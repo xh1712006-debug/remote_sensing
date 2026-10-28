@@ -38,9 +38,60 @@
                 </button>
             </div>
 
-            <!-- Leaflet Interactive Map -->
-            <label class="form-label">Hoặc nhấp chuột lên bản đồ:</label>
-            <div id="map"></div>
+            <!-- Leaflet Interactive Map & Thematic Controls -->
+            <div class="map-header-bar">
+                <label class="form-label mb-0">🛰️ Bản đồ Viễn thám & Dữ liệu Khí hậu NASA:</label>
+                <button type="button" class="btn-expand-map" id="btn-toggle-fullscreen" onclick="toggleMapFullscreen()" title="Mở rộng / Thu nhỏ bản đồ">
+                    <span id="expand-icon">⛶</span> Toàn màn hình
+                </button>
+            </div>
+
+            <!-- Layer Selection Toolbar -->
+            <div class="map-toolbar">
+                <div class="toolbar-item">
+                    <span class="toolbar-label">Lớp nền:</span>
+                    <select id="select-basemap" class="select-styled-sm" onchange="changeBasemap(this.value)">
+                        <option value="esri_clarity" selected>🛰️ Vệ tinh Không mây (Esri Clarity)</option>
+                        <option value="google_hybrid">🌍 Vệ tinh Siêu nét + Địa danh</option>
+                        <option value="osm">🗺️ Địa hình & Thửa ruộng (OSM)</option>
+                        <option value="carto_dark">🌙 Nền tối phân tích (CartoDB)</option>
+                    </select>
+                </div>
+
+                <div class="overlay-buttons">
+                    <button type="button" class="overlay-btn active" id="btn-layer-drought" onclick="toggleThematicLayer('drought')">
+                        <span>🏜️ Khô hạn đất</span>
+                    </button>
+                    <button type="button" class="overlay-btn" id="btn-layer-rain" onclick="toggleThematicLayer('rain')">
+                        <span>🌧️ Lượng mưa</span>
+                    </button>
+                    <button type="button" class="overlay-btn" id="btn-layer-salinity" onclick="toggleThematicLayer('salinity')">
+                        <span>🌊 Xâm nhập mặn</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map Wrapper with Floating Legend -->
+            <div class="map-wrapper" id="map-wrapper">
+                <div id="map"></div>
+
+                <!-- Floating Map Legend -->
+                <div class="map-legend" id="map-legend">
+                    <div class="legend-header">
+                        <span id="legend-title">🏜️ Cảnh báo Khô hạn tầng rễ (NASA SMAP)</span>
+                        <span class="legend-badge">GWETROOT</span>
+                    </div>
+                    <div class="legend-items" id="legend-items">
+                        <div class="legend-item"><span class="legend-color-dot" style="background:#ef4444"></span> Hạn cực hạn (&lt;0.35 - Gió Lào)</div>
+                        <div class="legend-item"><span class="legend-color-dot" style="background:#f59e0b"></span> Thiếu ẩm (0.35 - 0.50)</div>
+                        <div class="legend-item"><span class="legend-color-dot" style="background:#10b981"></span> Độ ẩm tốt (&gt;0.50)</div>
+                    </div>
+                    <div class="opacity-control">
+                        <span>Độ mờ:</span>
+                        <input type="range" id="layer-opacity" min="0.2" max="1.0" step="0.1" value="0.65" oninput="changeLayerOpacity(this.value)">
+                    </div>
+                </div>
+            </div>
 
             <!-- Lat Lng Inputs -->
             <div class="form-group">
