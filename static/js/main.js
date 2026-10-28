@@ -334,6 +334,12 @@ function updateEconomicEstimates() {
     } else if (unit === 'sao_bac_bo') {
         areaInHa = (areaVal * 360) / 10000;
         unitLabel = "sào Bắc Bộ";
+    } else if (unit === 'cong_nam_bo') {
+        areaInHa = (areaVal * 1000) / 10000;
+        unitLabel = "công Nam Bộ";
+    } else if (unit === 'm2') {
+        areaInHa = areaVal / 10000;
+        unitLabel = "m²";
     }
 
     if (displayArea) displayArea.innerText = `${areaVal} ${unitLabel}`;
@@ -587,7 +593,7 @@ function renderSoilChart(labels, topSoil, rootSoil) {
             scales: {
                 x: { ticks: { color: '#64748b' }, grid: { display: false } },
                 y: {
-                    min: 0.4,
+                    min: 0.1,
                     max: 1.0,
                     ticks: { color: '#94a3b8' },
                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
